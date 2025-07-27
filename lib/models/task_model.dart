@@ -3,5 +3,9 @@ class TaskModel {
   final String description;
   final String dueDate;
 
-  TaskModel( {required this.title, required this.description,required this.dueDate});
+  TaskModel({
+    required this.title,
+    required this.description,
+    required this.dueDate,
+  });
 }

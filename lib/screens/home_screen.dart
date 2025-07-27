@@ -1,4 +1,4 @@
-import 'package:assignment_3/models/task_database.dart';
+import 'package:assignment_3/models/task_future_builder.dart';
 import 'package:assignment_3/models/task_model.dart';
 import 'package:assignment_3/screens/add_task_screen.dart';
 import 'package:assignment_3/screens/edit_task_screen.dart';
@@ -14,16 +14,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Future<List<TaskModel>> taskfuture = TaskDatabase().getTask();
 
-  // void initstate() {
-  //   super.initState();
-
-  //   taskfuture = TaskDatabase().getTask();
-  // }
-
   void refreshTask() {
     setState(() {
       taskfuture = TaskDatabase().getTask();
     });
+  }
+
+  Stream<int> getTaskCount() async* {
+   yield TaskDatabase.tasklist.length;
   }
 
   @override
@@ -32,7 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('Tasks  ${TaskDatabase.tasklist.length}'),
+        title: StreamBuilder<int>(
+          stream: getTaskCount(),
+          builder: (context, snapshot) {
+            final countofTasks = snapshot.data ?? 0;
+            return Text('Tasks $countofTasks');
+          },
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -50,21 +54,37 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
       body: FutureBuilder<List<TaskModel>>(
         future: taskfuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No tasks available.'));
+          }
           final tasks = snapshot.data!;
 
-          return ListView.builder(
+          return ReorderableListView.builder(
             itemCount: tasks.length,
-
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                if (newIndex > oldIndex) newIndex -= 1;
+                final item = tasks.removeAt(oldIndex);
+                tasks.insert(newIndex, item);
+                TaskDatabase.tasklist = tasks;
+                
+              });
+            },
             itemBuilder: (_, index) {
-              var task = tasks[index];
+              final task = tasks[index];
+              
               return ListTile(
+                key: ValueKey(task), 
                 onTap: () async {
                   final updatedTask = await Navigator.push(
                     context,
@@ -72,30 +92,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                   if (updatedTask != null) {
                     TaskDatabase.updateTask(task, updatedTask);
-                    setState(() {
-                      task = updatedTask;
-                    });
+                    refreshTask();
                   }
                 },
-                leading: Container(
-                  height: 48,
-
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: EdgeInsets.all(8),
+                leading: ReorderableDragStartListener(
+                  index: index, 
                   child: Icon(Icons.menu),
-                ),
-
+                ), 
                 title: Text(task.title),
                 subtitle: Text(task.dueDate),
+
+               
               );
             },
           );
         },
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newTask = await Navigator.push(
