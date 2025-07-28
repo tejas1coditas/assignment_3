@@ -1,7 +1,9 @@
+import 'package:assignment_3/models/task_future_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:assignment_3/models/task_model.dart';
 
 class TaskHelper {
+
    void saveTask({
     required BuildContext context,
     required TextEditingController titleController,
@@ -31,5 +33,9 @@ class TaskHelper {
     );
 
     Navigator.pop(context, updatedTask);
+  }
+
+   Stream<int> getTaskCount() async* {
+   yield TaskDatabase.tasklist.length;
   }
 }

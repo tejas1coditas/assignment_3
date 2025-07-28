@@ -1,3 +1,4 @@
+import 'package:assignment_3/helper_functions/task_helper.dart';
 import 'package:assignment_3/models/task_future_builder.dart';
 import 'package:assignment_3/models/task_model.dart';
 import 'package:assignment_3/screens/add_task_screen.dart';
@@ -20,9 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Stream<int> getTaskCount() async* {
-   yield TaskDatabase.tasklist.length;
-  }
+  final helper = TaskHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: StreamBuilder<int>(
-          stream: getTaskCount(),
+          stream: helper.getTaskCount(),
           builder: (context, snapshot) {
             final countofTasks = snapshot.data ?? 0;
             return Text('Tasks $countofTasks');
@@ -77,14 +76,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 final item = tasks.removeAt(oldIndex);
                 tasks.insert(newIndex, item);
                 TaskDatabase.tasklist = tasks;
-                
               });
             },
             itemBuilder: (_, index) {
               final task = tasks[index];
-              
+
               return ListTile(
-                key: ValueKey(task), 
+                key: ValueKey(task),
                 onTap: () async {
                   final updatedTask = await Navigator.push(
                     context,
@@ -96,13 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 },
                 leading: ReorderableDragStartListener(
-                  index: index, 
+                  index: index,
                   child: Icon(Icons.menu),
-                ), 
+                ),
                 title: Text(task.title),
                 subtitle: Text(task.dueDate),
-
-               
               );
             },
           );

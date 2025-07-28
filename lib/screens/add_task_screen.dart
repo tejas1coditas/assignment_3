@@ -20,7 +20,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     double d1 = MediaQuery.of(context).size.height;
     double d2 = MediaQuery.of(context).size.width;
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      
       appBar: AppBar(title: Text('New Task'), centerTitle: true),
 
       body: SingleChildScrollView(
