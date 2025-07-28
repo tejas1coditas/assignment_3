@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
           stream: helper.getTaskCount(),
           builder: (context, snapshot) {
             final countofTasks = snapshot.data ?? 0;
-            return Text('Tasks $countofTasks');
+            return Text('Tasks ($countofTasks)');
           },
         ),
         centerTitle: true,
