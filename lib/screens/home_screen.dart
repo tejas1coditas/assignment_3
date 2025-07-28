@@ -25,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double d1 = MediaQuery.of(context).size.height;
+    double d2 = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -95,10 +97,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 leading: ReorderableDragStartListener(
                   index: index,
-                  child: Icon(Icons.menu),
+                  child: Container(
+                    height: d1*0.05,
+                    width: d2*0.1,
+                    decoration: BoxDecoration(
+                      
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(7)
+                      
+                    ),
+                    child: Icon(Icons.list)),
                 ),
                 title: Text(task.title),
-                subtitle: Text(task.dueDate),
+                subtitle: Text('Due ${task.dueDate}'),
               );
             },
           );
